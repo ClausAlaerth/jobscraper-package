@@ -12,21 +12,31 @@ class JobScraping:
             self, user: str,
             password: str,
             domain: str,
-            query: list[str],
-            location: str):
+            query: list[str]
+    ):
         self.user = user
         self.password = password
         self.domain = domain
         self.query = query
-        self.location = location
+        # self.location = location
         # self.job_list_archive = []
         self.navigator = webdriver.Chrome()
         self.wait = WebDriverWait(self.navigator, 10)
 
-    def acessar(self):
+    def __domain_selector(self):
+        if self.domain == "linkedin":
+            self.domain = "https://www.linkedin.com/jobs/"
+            self.__acessar_linkedin()
+            return
+        else:
+            ...
+
+    def __acessar_linkedin(self):
+
+        # go to domain
         self.navigator.get(self.domain)
 
-        self.navigator.maximize_window()
+        # self.navigator.maximize_window()
 
         # login stage
         user_input = self.wait.until(
@@ -37,27 +47,10 @@ class JobScraping:
             EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[2]/div/div/input")))
         password_input.send_keys(self.password)
 
-        # user_input = self.wait.until(
-        #     EC.presence_of_element_located((By.ID, "username")))
-        # user_input.send_keys(self.user)
-
-        # password_input = self.wait.until(
-        #     EC.presence_of_element_located((By.ID, "password")))
-        # password_input.send_keys(self.password)
-
-        # password_input.send_keys(Keys.ENTER)
-
         # time for auth
         time.sleep(15)
 
-        # go to jobs
-        # job_domain_xpath = '//*[@id="global-nav"]/div/nav/ul/li[3]/a'
-        # job_domain_button = self.wait.until(
-        #     EC.presence_of_element_located((By.XPATH, job_domain_xpath)))
-
-        # job_domain_button.click()
-
-        # query insertion
+        # using queries
         for i in self.query:
 
             query_input_xpath = "/html/body/div[6]/header/div/div/div/div[2]/div[2]/div/div/input[1]"
@@ -84,13 +77,18 @@ class JobScraping:
                 individual_job_label = job_list[j].get_attribute("aria-label")
                 individual_job_link = job_list[j].get_attribute("href")
 
+                # remove after testing
                 print(individual_job_label, individual_job_link)
 
                 # self.job_list_archive.append({"Job Name": individual_job_label, "Job Link": individual_job_link})
 
             self.navigator.back()
 
-        time.sleep(100)
+        time.sleep(100)  # remove after testing
+
+    def criar_arquivo(self):
+        self.__domain_selector()
+        # função do arquivo entra aqui (dict, path)
 
 
 if __name__ == "__main__":
@@ -104,8 +102,8 @@ if __name__ == "__main__":
     scrape = JobScraping(
         user="lc.aquinodeoliveira@gmail.com",
         password="4udacious_4_Aquin0",
-        domain="https://www.linkedin.com/login",
-        query=query,
-        location="Rio de Janeiro, Brasil")
+        domain="linkedin",
+        query=query
+    )
 
-    scrape.acessar()
+    scrape.criar_arquivo()
