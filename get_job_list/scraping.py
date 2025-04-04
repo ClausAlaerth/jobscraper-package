@@ -40,11 +40,11 @@ class JobScraping:
 
         # login stage
         user_input = self.wait.until(
-            EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[1]/div/div/input")))
+            EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[1]/div/div/input")))  # noqa: E501
         user_input.send_keys(self.user)
 
         password_input = self.wait.until(
-            EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[2]/div/div/input")))
+            EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[2]/div/div/input")))  # noqa: E501
         password_input.send_keys(self.password)
 
         # time for auth
@@ -53,7 +53,7 @@ class JobScraping:
         # using queries
         for i in self.query:
 
-            query_input_xpath = "/html/body/div[6]/header/div/div/div/div[2]/div[2]/div/div/input[1]"
+            query_input_xpath = "/html/body/div[6]/header/div/div/div/div[2]/div[2]/div/div/input[1]"  # noqa: E501
             query_input = self.wait.until(
                 EC.presence_of_element_located((By.XPATH, query_input_xpath)))
             query_input.send_keys(i)
@@ -72,7 +72,7 @@ class JobScraping:
 
                 # script to scroll
                 self.navigator.execute_script(
-                    "arguments[0].scrollIntoView({block: 'center'})", job_list[j])
+                    "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
 
                 individual_job_label = job_list[j].get_attribute("aria-label")
                 individual_job_link = job_list[j].get_attribute("href")
@@ -80,7 +80,7 @@ class JobScraping:
                 # remove after testing
                 print(individual_job_label, individual_job_link)
 
-                # self.job_list_archive.append({"Job Name": individual_job_label, "Job Link": individual_job_link})
+                # self.job_list_archive.append({"Job Name": individual_job_label, "Job Link": individual_job_link})  # noqa: E501
 
             self.navigator.back()
 
