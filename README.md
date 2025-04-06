@@ -35,7 +35,7 @@
 
 ## Usar JobScraper
 
-* Criar uma lista de queries para a pesquisa (list[[str]]) - Lista Aninhada
+* Criar uma lista de queries para a pesquisa (list[str])
 * Instanciar o JobScraper
 -----> Inserir domínio ("linkedin" ou "vagas.com")
 -----> Inserir nome do arquivo (str)
