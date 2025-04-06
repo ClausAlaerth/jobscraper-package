@@ -58,20 +58,6 @@ class JobScraping:
         self.navigator.get(self.domain)
         # self.navigator.maximize_window()
 
-        # login stage
-        # user_input = self.wait.until(
-        #     EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[1]/div/div/input")))  # noqa: E501
-        # user_input.send_keys("")
-
-        # password_input = self.wait.until(
-        #     EC.presence_of_element_located((By.XPATH, "/html/body/main/section[1]/div/div/form/div[1]/div[2]/div/div/input")))  # noqa: E501
-        # password_input.send_keys("")
-
-        # password_input.send_keys(Keys.ENTER)
-
-        # time for auth
-        # time.sleep(30)
-
         # using queries
         for i in self.query:
 
@@ -118,8 +104,6 @@ class JobScraping:
 
             query_input.send_keys(Keys.ENTER)
 
-            # time.sleep(5)
-
             # scraping job
             job_list = self.wait.until(EC.presence_of_all_elements_located(
                 (By.CLASS_NAME, "link-detalhes-vaga")))
@@ -152,7 +136,7 @@ class JobScraping:
 
 if __name__ == "__main__":
 
-    # TESTE LINKEDIN
+    # TESTE LINKEDIN ----------------------------------------------------------
     query_linkedin = [
         '("python" AND "junior")',
         '("analista de dados" AND "junior")',
@@ -167,7 +151,7 @@ if __name__ == "__main__":
 
     scrape_linkedin.criar_arquivo()
 
-    # TESTE VAGAS.COM
+    # TESTE VAGAS.COM ---------------------------------------------------------
     # query_vagas = [
     #     'python junior rio de janeiro',
     #     'analista de dados junior rio de janeiro',
