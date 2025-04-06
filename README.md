@@ -1,4 +1,4 @@
-# Planejamento Projeto - Scraping de Vagas (Em andamento)
+# Planejamento Projeto - Scraping de Vagas (Apenas LinkedIn e Vagas.com)
 
 ## Módulo 1 - Classe
 
@@ -6,6 +6,7 @@
 
 * init (domain, archive_name, query)
 * Seleção do Dominio
+* Remoção de Duplicatas
 * Método do Linkedin
 * Método do Vagas.com
 * Catho (?)
