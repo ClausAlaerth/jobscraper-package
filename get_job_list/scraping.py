@@ -12,7 +12,7 @@ from selenium.webdriver.chrome.options import Options
 import time
 
 
-class JobScraping:
+class JobScraper:
 
     def __init__(
             self,
@@ -136,33 +136,30 @@ class JobScraping:
 
 if __name__ == "__main__":
 
-    # TESTE LINKEDIN ----------------------------------------------------------
-    query_linkedin = [
-        '("python" AND "junior")',
-        '("analista de dados" AND "junior")',
-        '("analista de suporte" AND "junior")'
+    #     query = [
+    #         "('python' AND 'junior')",
+    #         "('analista' AND 'junior')",
+    #         "('dados' AND 'junior')",
+    #     ]
+
+    #     linkedin = JobScraper(
+    #         "linkedin",
+    #         "lista_de_vagas",
+    #         query=query
+    #     )
+
+    # linkedin.criar_arquivo()
+
+    query = [
+        "python junior rio de janeiro",
+        "analista junior rio de janeiro",
+        "dados junior rio de janeiro",
     ]
 
-    scrape_linkedin = JobScraping(
-        domain="linkedin",
-        archive_name="trabalhos",
-        query=query_linkedin
+    vagas = JobScraper(
+        "vagas.com",
+        "lista_de_vagas",
+        query=query
     )
 
-    scrape_linkedin.criar_arquivo()
-
-    # TESTE VAGAS.COM ---------------------------------------------------------
-    # query_vagas = [
-    #     'python junior rio de janeiro',
-    #     'analista de dados junior rio de janeiro',
-    #     'dados junior rio de janeiro',
-    #     'analista de suporte junior rio de janeiro'
-    # ]
-
-    # scrape_vagas = JobScraping(
-    #     domain="vagas.com",
-    #     archive_name="trabalhos",
-    #     query=query_vagas
-    # )
-
-    # scrape_vagas.criar_arquivo()
+    vagas.criar_arquivo()
