@@ -2,7 +2,6 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-# from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from conversion import list_conversion  # type: ignore
 
@@ -79,8 +78,10 @@ class JobScraper:
             query_input = self.wait.until(EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "div > div > div.relative > input")))
             query_input.send_keys(i)
-
             query_input.send_keys(Keys.ENTER)
+
+            # time to load assets
+            time.sleep(3)
 
             time.sleep(2)
 
@@ -125,8 +126,10 @@ class JobScraper:
             query_input = self.wait.until(EC.presence_of_element_located(
                 (By.ID, "nova-home-search")))
             query_input.send_keys(i + " " + self.location)
-
             query_input.send_keys(Keys.ENTER)
+
+            # time to load assets
+            time.sleep(3)
 
             # scraping job
             try:
@@ -173,6 +176,9 @@ class JobScraper:
             treated_location = "-".join(self.location.split()).lower()
             self.navigator.get(self.navigator.current_url + treated_location)
 
+            # time to load assets
+            time.sleep(3)
+
             # scraping job
             try:
                 job_list = self.wait.until(EC.presence_of_all_elements_located(
@@ -202,7 +208,54 @@ class JobScraper:
         self.__dupe_removal(self.job_archive)
 
     def __acessar_glassdoor(self):
-        ...
+
+        # go to domain
+        self.navigator.get(self.domain)
+
+        # using queries
+        for i in self.query:
+
+            query_input = self.wait.until(EC.presence_of_element_located(
+                (By.ID, "searchBar-jobTitle")))
+            query_input.send_keys(i)
+
+            location_input = self.wait.until(EC.presence_of_element_located(
+                (By.ID, "searchBar-location")))
+            location_input.send_keys(self.location)
+            location_input.send_keys(Keys.ENTER)
+
+            # time to load assets
+            time.sleep(3)
+
+            # scraping job
+            try:
+                job_list = self.wait.until(EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, "a.JobCard_jobTitle__GLyJ1")))  # noqa: E501
+            except TimeoutException:
+                job_list = False
+
+            if job_list:
+
+                for j in range(len(job_list)):
+
+                    # time.sleep(0.5)
+
+                    # script to scroll
+                    self.navigator.execute_script(
+                        "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
+
+                    individual_job_title = job_list[j].get_attribute("text")
+                    individual_job_link = job_list[j].get_attribute("href")
+
+                    self.job_archive.append(
+                        [individual_job_title, individual_job_link])
+
+                self.navigator.back()
+
+            else:
+                self.navigator.back()
+
+        self.__dupe_removal(self.job_archive)
 
     def criar_arquivo(self):
         self.__domain_selector()
@@ -217,16 +270,39 @@ if __name__ == "__main__":
 
     query = [
         "python junior",
+        "python backend junior",
+        "python junior",
         "analista de dados junior",
         "analista de sistemas junior",
         "django junior",
     ]
 
+    # linkedin = JobScraper(
+    #     "linkedin",
+    #     "lista_de_vagas",
+    #     query,
+    #     "Rio de Janeiro"
+    # )
+
+    # vagas = JobScraper(
+    #     "vagas.com",
+    #     "lista_de_vagas",
+    #     query,
+    #     "Rio de Janeiro"
+    # )
+
     catho = JobScraper(
         "catho",
         "lista_de_vagas",
         query,
-        "Rio de Janeiro RJ"
+        "RJ"
     )
+
+    # glassdoor = JobScraper(
+    #     "glassdoor",
+    #     "lista_de_vagas",
+    #     query,
+    #     "Rio de Janeiro"
+    # )
 
     catho.criar_arquivo()
