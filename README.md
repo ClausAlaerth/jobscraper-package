@@ -6,6 +6,7 @@ especificados abaixo, os centralizando em um arquivo .xlsx:
 * LinkedIn
 * Vagas.com
 * Catho
+* Glassdoor
 
 ## Instalação
 
@@ -69,9 +70,13 @@ uma nova planilha será adicionada ao arquivo já existente.
 --- Domínio Utilizado: [Vagas.com](https://www.vagas.com.br/)
 --- Nome da Planilha: "vagas.com"
 
-* "Catho"
---- Domínio Utilizado: [Vagas.com](https://www.vagas.com.br/)
---- Nome da Planilha: "vagas.com"
+* "catho"
+--- Domínio Utilizado: [Catho](https://www.catho.com.br/)
+--- Nome da Planilha: "catho"
+
+* "glassdoor"
+--- Domínio Utilizado: [Vagas.com](https://www.glassdoor.com.br/Vaga/index.htm)
+--- Nome da Planilha: "glassdoor"
 
 ### Sobre os domínios
 
@@ -96,6 +101,12 @@ apenas "estado(por extenso)".
 Usará os dados da query e em seguida, a localidade inserida no parâmetro,
 certifique-se de usar um local válido, "cidade estado(abreviado)" ou apenas
 "estado(sigla)".
+
+#### Glassdoor
+
+Usará os dados da query e em seguida, a localidade inserida no parâmetro,
+certifique-se de usar um local válido, "cidade estado" ou apenas
+"estado".
 
 ## Desenvolvedor
 
