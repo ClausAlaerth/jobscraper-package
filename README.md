@@ -14,7 +14,7 @@ Use o gerenciador de pacotes [pip](https://pypi.org/project/pip/) para
 instalar o JobScraper:
 
 ```bash
-pip install jobscrpr
+pip install jb-scraper
 ```
 
 ## Utilização
