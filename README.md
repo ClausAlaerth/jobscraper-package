@@ -5,10 +5,11 @@ especificados abaixo, os centralizando em um arquivo .xlsx:
 
 * LinkedIn
 * Vagas.com
+* Catho
 
 ## Instalação
 
-Use o gerenciador de pacotes ['pip'](https://pypi.org/project/pip/) para
+Use o gerenciador de pacotes [pip](https://pypi.org/project/pip/) para
 instalar o JobScraper:
 
 ```bash
@@ -61,14 +62,46 @@ uma nova planilha será adicionada ao arquivo já existente.
 ### Palavras-chave
 
 * "linkedin"
----> Domínio Utilizado: [LinkedIn](https://www.linkedin.com/jobs/)
----> Nome da Planilha: "linkedin"
+--- Domínio Utilizado: [LinkedIn](https://www.linkedin.com/jobs/)
+--- Nome da Planilha: "linkedin"
 
 * "vagas.com"
----> Domínio Utilizado: [Vagas.com](https://www.vagas.com.br/)
----> Nome da Planilha: "vagas.com"
+--- Domínio Utilizado: [Vagas.com](https://www.vagas.com.br/)
+--- Nome da Planilha: "vagas.com"
+
+* "Catho"
+--- Domínio Utilizado: [Vagas.com](https://www.vagas.com.br/)
+--- Nome da Planilha: "vagas.com"
+
+### Sobre os domínios
+
+Há alguns domínios que exigem login, ou informação adicional, como localidade
+das vagas e afins. Para tanto, é necessário exemplificar as peculiaridades de
+cada site envolvido no scraping.
+
+#### LinkedIn
+
+O LinkedIn não irá fazer o scraping imediatamente, para acessar as vagas é
+preciso fazer o login com a sua conta, no site. Assim que tal ação for feita,
+o script continuará normalmente. A localidade usada será a configurada na sua
+conta do LinkedIn.
+
+#### Vagas.com
+
+O site Vagas.com terá a query concatenada com a localidade, "cidade estado" ou
+apenas "estado(por extenso)".
+
+#### Catho
+
+Usará os dados da query e em seguida, a localidade inserida no parâmetro,
+certifique-se de usar um local válido, "cidade estado(abreviado)" ou apenas
+"estado(sigla)".
 
 ## Desenvolvedor
 
 Lucas Aquino de Oliveira
----> [Meu LinkedIn](https://www.linkedin.com/in/aquino-lucas)
+--- [Meu LinkedIn](https://www.linkedin.com/in/aquino-lucas)
+
+## Licença
+
+[MIT](https://choosealicense.com/licenses/mit/)
