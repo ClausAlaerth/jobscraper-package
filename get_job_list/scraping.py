@@ -2,12 +2,15 @@ from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support import expected_conditions as EC
 from conversion import list_conversion  # type: ignore
 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
+
+from selenium.common.exceptions import TimeoutException
 
 import time
 
@@ -18,12 +21,14 @@ class JobScraper:
             self,
             domain: str,
             archive_name: str,
-            query: list
+            query: list,
+            location: str
     ):
         self.domain = domain
         self.archive_name = archive_name
         self.sheet_name = domain
         self.query = query
+        self.location = location
         self.job_archive: list = []
         self.processed_archive: list = []
 
@@ -34,19 +39,29 @@ class JobScraper:
 
         self.navigator = webdriver.Chrome(
             options=self.options, service=Service(ChromeDriverManager().install()))  # noqa: E501
-        self.wait = WebDriverWait(self.navigator, 30)
+        self.wait = WebDriverWait(self.navigator, 18)
 
     def __domain_selector(self):
         if self.domain == "linkedin":
             self.domain = "https://www.linkedin.com/jobs/"
             self.__acessar_linkedin()
             return
-        if self.domain == "vagas.com":
+        elif self.domain == "vagas.com":
             self.domain = "https://www.vagas.com.br/"
             self.__acessar_vagas()
             return
+        elif self.domain == "catho":
+            self.domain = "https://www.catho.com.br"
+            self.__acessar_catho()
+            return
+        elif self.domain == "glassdoor":
+            self.domain = "https://www.glassdoor.com.br/Vaga/index.htm"
+            self.__acessar_glassdoor()
+            return
         else:
-            ...
+            raise NotImplementedError(
+                "Você não usou uma palavra-chave apropriada."
+            )
 
     def __dupe_removal(self, archive):
         self.processed_archive = list(
@@ -70,22 +85,31 @@ class JobScraper:
             time.sleep(2)
 
             # scrape the jobs
-            job_list = self.navigator.find_elements(
-                By.CSS_SELECTOR, "li div > div > a")
+            try:
+                job_list = self.navigator.find_elements(
+                    By.CSS_SELECTOR, "li div > div > a")
+            except TimeoutException:
+                job_list = False
 
-            for j in range(len(job_list)):
+            if job_list:
 
-                # script to scroll
-                self.navigator.execute_script(
-                    "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
+                for j in range(len(job_list)):
 
-                individual_job_label = job_list[j].get_attribute("aria-label")
-                individual_job_link = job_list[j].get_attribute("href")
+                    # script to scroll
+                    self.navigator.execute_script(
+                        "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
 
-                self.job_archive.append(
-                    [individual_job_label, individual_job_link])
+                    individual_job_label = job_list[j].get_attribute(
+                        "aria-label")
+                    individual_job_link = job_list[j].get_attribute("href")
 
-            self.navigator.back()
+                    self.job_archive.append(
+                        [individual_job_label, individual_job_link])
+
+                self.navigator.back()
+
+            else:
+                self.navigator.back()
 
         self.__dupe_removal(self.job_archive)
 
@@ -100,30 +124,85 @@ class JobScraper:
 
             query_input = self.wait.until(EC.presence_of_element_located(
                 (By.ID, "nova-home-search")))
-            query_input.send_keys(i)
+            query_input.send_keys(i + " " + self.location)
 
             query_input.send_keys(Keys.ENTER)
 
             # scraping job
-            job_list = self.wait.until(EC.presence_of_all_elements_located(
-                (By.CLASS_NAME, "link-detalhes-vaga")))
+            try:
+                job_list = self.wait.until(EC.presence_of_all_elements_located(
+                    (By.CLASS_NAME, "link-detalhes-vaga")))
+            except TimeoutException:
+                job_list = False
 
-            for j in range(len(job_list)):
+            if job_list:
 
-                # script to scroll
-                self.navigator.execute_script(
-                    "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
+                for j in range(len(job_list)):
 
-                individual_job_label = job_list[j].get_attribute("title")
-                individual_job_link = job_list[j].get_attribute("href")
+                    # script to scroll
+                    self.navigator.execute_script(
+                        "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
 
-                self.job_archive.append(
-                    [individual_job_label, individual_job_link])
+                    individual_job_label = job_list[j].get_attribute("title")
+                    individual_job_link = job_list[j].get_attribute("href")
 
-            self.navigator.back()
-            self.navigator.refresh()
+                    self.job_archive.append(
+                        [individual_job_label, individual_job_link])
+
+                self.navigator.get(self.domain)
+
+            else:
+                self.navigator.get(self.domain)
 
         self.__dupe_removal(self.job_archive)
+
+    def __acessar_catho(self):
+
+        # go to domain
+        self.navigator.get(self.domain)
+
+        # using queries
+        for i in self.query:
+
+            query_input = self.wait.until(EC.presence_of_element_located(
+                (By.ID, "input-0")))
+            query_input.send_keys(i)
+            query_input.send_keys(Keys.ENTER)
+
+            # treating location for url
+            treated_location = "-".join(self.location.split()).lower()
+            self.navigator.get(self.navigator.current_url + treated_location)
+
+            # scraping job
+            try:
+                job_list = self.wait.until(EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, "#search-result > ul > li div > h2 > a")))  # noqa: E501
+            except TimeoutException:
+                job_list = False
+
+            if job_list:
+
+                for j in range(len(job_list)):
+
+                    # script to scroll
+                    self.navigator.execute_script(
+                        "arguments[0].scrollIntoView({block: 'center'})", job_list[j])  # noqa: E501
+
+                    individual_job_title = job_list[j].get_attribute("text")
+                    individual_job_link = job_list[j].get_attribute("href")
+
+                    self.job_archive.append(
+                        [individual_job_title, individual_job_link])
+
+                self.navigator.get(self.domain)
+
+            else:
+                self.navigator.get(self.domain)
+
+        self.__dupe_removal(self.job_archive)
+
+    def __acessar_glassdoor(self):
+        ...
 
     def criar_arquivo(self):
         self.__domain_selector()
@@ -136,30 +215,18 @@ class JobScraper:
 
 if __name__ == "__main__":
 
-    #     query = [
-    #         "('python' AND 'junior')",
-    #         "('analista' AND 'junior')",
-    #         "('dados' AND 'junior')",
-    #     ]
-
-    #     linkedin = JobScraper(
-    #         "linkedin",
-    #         "lista_de_vagas",
-    #         query=query
-    #     )
-
-    # linkedin.criar_arquivo()
-
     query = [
-        "python junior rio de janeiro",
-        "analista junior rio de janeiro",
-        "dados junior rio de janeiro",
+        "python junior",
+        "analista de dados junior",
+        "analista de sistemas junior",
+        "django junior",
     ]
 
-    vagas = JobScraper(
-        "vagas.com",
+    catho = JobScraper(
+        "catho",
         "lista_de_vagas",
-        query=query
+        query,
+        "Rio de Janeiro RJ"
     )
 
-    vagas.criar_arquivo()
+    catho.criar_arquivo()
