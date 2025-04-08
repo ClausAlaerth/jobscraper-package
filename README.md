@@ -32,13 +32,13 @@ query_list = [
 
 # Crie o objeto com a classe JobScraper.
 objeto = JobScraper(
-    dominio="palavra-chave",  # Consulte as palavras-chave
+    domain="palavra-chave",  # Consulte as palavras-chave
     archive_name="sua-escolha",
     query=query_list,
 )
 
 # Instancie o objeto com a seguinte função.
-objeto.criar_arquivo()
+objeto.create_archive()
 ```
 
 A execução deste código irá ativar o Selenium, recolher os dados das vagas
