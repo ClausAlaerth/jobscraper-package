@@ -8,7 +8,7 @@ with open("requirements.txt", "r") as f:
     requirements = f.read().splitlines()
 
 setup(
-    name="job_scrpr",
+    name="job-scrpr",
     version="0.0.1",
     author="Lucas Aquino",
     author_email="lc.aquinodeoliveira@gmail.com",
