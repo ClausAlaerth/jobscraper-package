@@ -37,7 +37,7 @@ objeto = JobScraper(
     query=query_list,
 )
 
-# Instancie o objeto com a seguinte função.
+# Instancie o objeto com o sequinte método.
 objeto.create_archive()
 ```
 
