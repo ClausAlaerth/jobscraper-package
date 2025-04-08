@@ -20,7 +20,7 @@ pip install jobscrpr
 ## Utilização
 
 ```python
-import JobScraper
+from jb_scraper import JobScraper
 
 # Coloque suas pesquisas em uma lista.
 query_list = [
