@@ -59,8 +59,8 @@ class JobScraper:
             return
         else:
             raise SyntaxError(
-                "Você não usou uma palavra-chave apropriada "
-                "consulte a documentação."
+                "Você não usou uma palavra-chave apropriada,"
+                " consulte a documentação."
             )
 
     def __dupe_removal(self, archive):
