@@ -3,11 +3,23 @@ from openpyxl import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl import load_workbook
 import os
+import inspect
+
+
+# This function will get the path of
+# the module executing the script.
+def get_root_caller_path():
+
+    stack = inspect.stack()
+    root_caller = stack[-1]
+    root_file = root_caller.filename
+
+    return root_file
 
 
 def list_conversion(job_list: list, archive_name: str, sheet_name: str):
 
-    ROOT_FOLDER = Path(__file__).parent
+    ROOT_FOLDER = Path(get_root_caller_path()).parent
     WORKBOOK_PATH = ROOT_FOLDER / (archive_name + ".xlsx")
 
     if os.path.exists(WORKBOOK_PATH):
