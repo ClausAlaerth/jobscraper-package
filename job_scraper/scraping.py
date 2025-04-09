@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from conversion import list_conversion  # type: ignore
+from .conversion import list_conversion
 
 import time
 
@@ -26,18 +26,18 @@ class JobScraper:
         self.sheet_name = domain
         self.query = query
         self.location = location
-        self.job_archive: list = []
+        self.__job_archive: list = []
         self.processed_archive: list = []
 
-        self.options = Options()
-        self.options.add_argument('--ignore-certificate-errors')
-        self.options.add_argument('--ignore-ssl-errors')
-        self.options.add_argument('--log-level=3')
+        self.__options = Options()
+        self.__options.add_argument('--ignore-certificate-errors')
+        self.__options.add_argument('--ignore-ssl-errors')
+        self.__options.add_argument('--log-level=3')
         self.navigator = webdriver.Chrome(
-            options=self.options,
+            options=self.__options,
             service=Service(ChromeDriverManager().install())
         )
-        self.wait = WebDriverWait(self.navigator, 18)
+        self.__wait = WebDriverWait(self.navigator, 18)
 
     def __domain_selector(self):
 
@@ -58,8 +58,9 @@ class JobScraper:
             self.__access_glassdoor()
             return
         else:
-            raise NotImplementedError(
-                "Você não usou uma palavra-chave apropriada."
+            raise SyntaxError(
+                "Você não usou uma palavra-chave apropriada "
+                "consulte a documentação."
             )
 
     def __dupe_removal(self, archive):
@@ -71,7 +72,7 @@ class JobScraper:
         self.navigator.get(self.domain)
 
         for i in self.query:
-            query_input = self.wait.until(EC.presence_of_element_located(
+            query_input = self.__wait.until(EC.presence_of_element_located(
                 (By.CSS_SELECTOR, "div > div > div.relative > input")))
             query_input.send_keys(i)
             query_input.send_keys(Keys.ENTER)
@@ -93,7 +94,7 @@ class JobScraper:
                     individual_job_label = job_list[j].get_attribute(
                         "aria-label")
                     individual_job_link = job_list[j].get_attribute("href")
-                    self.job_archive.append(
+                    self.__job_archive.append(
                         [individual_job_label, individual_job_link])
 
                 self.navigator.back()
@@ -101,14 +102,14 @@ class JobScraper:
             else:
                 self.navigator.back()
 
-        self.__dupe_removal(self.job_archive)
+        self.__dupe_removal(self.__job_archive)
 
     def __access_vagas(self):
 
         self.navigator.get(self.domain)
 
         for i in self.query:
-            query_input = self.wait.until(EC.presence_of_element_located(
+            query_input = self.__wait.until(EC.presence_of_element_located(
                 (By.ID, "nova-home-search")))
             query_input.send_keys(i + " " + self.location)
             query_input.send_keys(Keys.ENTER)
@@ -116,9 +117,9 @@ class JobScraper:
             time.sleep(3)  # Safety timer to load elements
 
             try:
-                job_list = self.wait.until(EC.presence_of_all_elements_located(
-                    (By.CLASS_NAME, "link-detalhes-vaga")
-                ))
+                job_list = self.__wait.until(
+                    EC.presence_of_all_elements_located(
+                        (By.CLASS_NAME, "link-detalhes-vaga")))
             except TimeoutException:
                 job_list = False
 
@@ -130,7 +131,7 @@ class JobScraper:
                     )
                     individual_job_label = job_list[j].get_attribute("title")
                     individual_job_link = job_list[j].get_attribute("href")
-                    self.job_archive.append(
+                    self.__job_archive.append(
                         [individual_job_label, individual_job_link])
 
                 self.navigator.get(self.domain)
@@ -138,14 +139,14 @@ class JobScraper:
             else:
                 self.navigator.get(self.domain)
 
-        self.__dupe_removal(self.job_archive)
+        self.__dupe_removal(self.__job_archive)
 
     def __access_catho(self):
 
         self.navigator.get(self.domain)
 
         for i in self.query:
-            query_input = self.wait.until(EC.presence_of_element_located(
+            query_input = self.__wait.until(EC.presence_of_element_located(
                 (By.ID, "input-0")))
             query_input.send_keys(i)
             query_input.send_keys(Keys.ENTER)
@@ -157,9 +158,10 @@ class JobScraper:
             time.sleep(3)  # Safety timer to load elements
 
             try:
-                job_list = self.wait.until(EC.presence_of_all_elements_located(
-                    (By.CSS_SELECTOR, "#search-result > ul > li div > h2 > a")
-                ))
+                job_list = self.__wait.until(
+                    EC.presence_of_all_elements_located(
+                        (By.CSS_SELECTOR,
+                            "#search-result > ul > li div > h2 > a")))
             except TimeoutException:
                 job_list = False
 
@@ -171,7 +173,7 @@ class JobScraper:
                     )
                     individual_job_title = job_list[j].get_attribute("text")
                     individual_job_link = job_list[j].get_attribute("href")
-                    self.job_archive.append(
+                    self.__job_archive.append(
                         [individual_job_title, individual_job_link])
 
                 self.navigator.get(self.domain)
@@ -179,17 +181,17 @@ class JobScraper:
             else:
                 self.navigator.get(self.domain)
 
-        self.__dupe_removal(self.job_archive)
+        self.__dupe_removal(self.__job_archive)
 
     def __access_glassdoor(self):
 
         self.navigator.get(self.domain)
 
         for i in self.query:
-            query_input = self.wait.until(EC.presence_of_element_located(
+            query_input = self.__wait.until(EC.presence_of_element_located(
                 (By.ID, "searchBar-jobTitle")))
             query_input.send_keys(i)
-            location_input = self.wait.until(EC.presence_of_element_located(
+            location_input = self.__wait.until(EC.presence_of_element_located(
                 (By.ID, "searchBar-location")))
             location_input.send_keys(self.location)
             location_input.send_keys(Keys.ENTER)
@@ -197,8 +199,9 @@ class JobScraper:
             time.sleep(3)  # Safety timer to load elements
 
             try:
-                job_list = self.wait.until(EC.presence_of_all_elements_located(
-                    (By.CSS_SELECTOR, "a.JobCard_jobTitle__GLyJ1")))
+                job_list = self.__wait.until(
+                    EC.presence_of_all_elements_located(
+                        (By.CSS_SELECTOR, "a.JobCard_jobTitle__GLyJ1")))
             except TimeoutException:
                 job_list = False
 
@@ -210,7 +213,7 @@ class JobScraper:
                     )
                     individual_job_title = job_list[j].get_attribute("text")
                     individual_job_link = job_list[j].get_attribute("href")
-                    self.job_archive.append(
+                    self.__job_archive.append(
                         [individual_job_title, individual_job_link])
 
                 self.navigator.back()
@@ -218,7 +221,7 @@ class JobScraper:
             else:
                 self.navigator.back()
 
-        self.__dupe_removal(self.job_archive)
+        self.__dupe_removal(self.__job_archive)
 
     def create_archive(self):
         self.__domain_selector()
