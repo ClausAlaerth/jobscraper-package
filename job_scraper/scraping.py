@@ -4,10 +4,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from .conversion import list_conversion
+from conversion import list_conversion
 
 import time
 
@@ -33,11 +33,14 @@ class JobScraper:
         self.__options.add_argument('--ignore-certificate-errors')
         self.__options.add_argument('--ignore-ssl-errors')
         self.__options.add_argument('--log-level=3')
-        self.navigator = webdriver.Chrome(
+        # self.__options.add_argument('--headless')
+        self.__options.add_argument('--start-maximized')
+        self.__navigator = webdriver.Chrome(
             options=self.__options,
             service=Service(ChromeDriverManager().install())
         )
-        self.__wait = WebDriverWait(self.navigator, 18)
+        self.__wait = WebDriverWait(self.__navigator, 5)
+        self.__wait_linkedin = WebDriverWait(self.__navigator, 30)
 
     def __domain_selector(self):
 
@@ -65,48 +68,59 @@ class JobScraper:
 
     def __dupe_removal(self, archive):
 
-        self.processed_archive = list(
-            set(list(tuple(x) for x in archive)))
+        double_check_list = []
+
+        for i in archive:
+            if i[0] in double_check_list:
+                pass
+            else:
+                self.processed_archive.append(i)
+                double_check_list.append(i[0])
 
     def __access_linkedin(self):
-        self.navigator.get(self.domain)
+        self.__navigator.get(self.domain)
 
         for i in self.query:
-            query_input = self.__wait.until(EC.presence_of_element_located(
-                (By.CSS_SELECTOR, "div > div > div.relative > input")))
+            query_input = self.__wait_linkedin.until(
+                EC.presence_of_element_located((
+                    By.CSS_SELECTOR, "div > div > div.relative > input")))
             query_input.send_keys(i)
             query_input.send_keys(Keys.ENTER)
 
             time.sleep(3)  # Safety timer to load elements
 
-            try:
-                job_list = self.navigator.find_elements(
-                    By.CSS_SELECTOR, "li div > div > a")
-            except TimeoutException:
-                job_list = False
+            # LinkedIn Lazy Load check
+            while True:
+                try:
+                    job_list = self.__navigator.find_elements(
+                        By.CSS_SELECTOR, "li div > div > a")
 
-            if job_list:
-                for j in range(len(job_list)):
-                    self.navigator.execute_script(
+                    footer_element = self.__navigator.find_element(
+                        By.XPATH, '//*[@id="compactfooter-about"]')
+
+                    if footer_element:
+                        break
+
+                except NoSuchElementException:
+                    self.__navigator.execute_script(
                         "arguments[0].scrollIntoView({block: 'center'})",
-                        job_list[j]
-                    )
-                    individual_job_label = job_list[j].get_attribute(
-                        "aria-label")
-                    individual_job_link = job_list[j].get_attribute("href")
-                    self.__job_archive.append(
-                        [individual_job_label, individual_job_link])
+                        job_list[-1])
 
-                self.navigator.back()
+            for j in range(len(job_list)):
 
-            else:
-                self.navigator.back()
+                individual_job_label = job_list[j].get_attribute(
+                    "aria-label")
+                individual_job_link = job_list[j].get_attribute("href")
+                self.__job_archive.append(
+                    [individual_job_label, individual_job_link])
+
+            self.__navigator.back()
 
         self.__dupe_removal(self.__job_archive)
 
     def __access_vagas(self):
 
-        self.navigator.get(self.domain)
+        self.__navigator.get(self.domain)
 
         for i in self.query:
             query_input = self.__wait.until(EC.presence_of_element_located(
@@ -125,7 +139,7 @@ class JobScraper:
 
             if job_list:
                 for j in range(len(job_list)):
-                    self.navigator.execute_script(
+                    self.__navigator.execute_script(
                         "arguments[0].scrollIntoView({block: 'center'})",
                         job_list[j]
                     )
@@ -134,16 +148,16 @@ class JobScraper:
                     self.__job_archive.append(
                         [individual_job_label, individual_job_link])
 
-                self.navigator.get(self.domain)
+                self.__navigator.get(self.domain)
 
             else:
-                self.navigator.get(self.domain)
+                self.__navigator.get(self.domain)
 
         self.__dupe_removal(self.__job_archive)
 
     def __access_catho(self):
 
-        self.navigator.get(self.domain)
+        self.__navigator.get(self.domain)
 
         for i in self.query:
             query_input = self.__wait.until(EC.presence_of_element_located(
@@ -153,7 +167,8 @@ class JobScraper:
 
             # Treating location for url manipulation
             treated_location = "-".join(self.location.split()).lower()
-            self.navigator.get(self.navigator.current_url + treated_location)
+            self.__navigator.get(
+                self.__navigator.current_url + treated_location)
 
             time.sleep(3)  # Safety timer to load elements
 
@@ -167,7 +182,7 @@ class JobScraper:
 
             if job_list:
                 for j in range(len(job_list)):
-                    self.navigator.execute_script(
+                    self.__navigator.execute_script(
                         "arguments[0].scrollIntoView({block: 'center'})",
                         job_list[j]
                     )
@@ -176,16 +191,16 @@ class JobScraper:
                     self.__job_archive.append(
                         [individual_job_title, individual_job_link])
 
-                self.navigator.get(self.domain)
+                self.__navigator.get(self.domain)
 
             else:
-                self.navigator.get(self.domain)
+                self.__navigator.get(self.domain)
 
         self.__dupe_removal(self.__job_archive)
 
     def __access_glassdoor(self):
 
-        self.navigator.get(self.domain)
+        self.__navigator.get(self.domain)
 
         for i in self.query:
             query_input = self.__wait.until(EC.presence_of_element_located(
@@ -207,7 +222,7 @@ class JobScraper:
 
             if job_list:
                 for j in range(len(job_list)):
-                    self.navigator.execute_script(
+                    self.__navigator.execute_script(
                         "arguments[0].scrollIntoView({block: 'center'})",
                         job_list[j]
                     )
@@ -216,10 +231,10 @@ class JobScraper:
                     self.__job_archive.append(
                         [individual_job_title, individual_job_link])
 
-                self.navigator.back()
+                self.__navigator.back()
 
             else:
-                self.navigator.back()
+                self.__navigator.back()
 
         self.__dupe_removal(self.__job_archive)
 
