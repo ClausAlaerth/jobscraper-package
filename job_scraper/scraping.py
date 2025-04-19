@@ -85,6 +85,9 @@ class JobScraper:
                 EC.presence_of_element_located((
                     By.CSS_SELECTOR, "div > div > div.relative > input")))
             query_input.send_keys(i)
+
+            time.sleep(5)  # Solves Error 429
+
             query_input.send_keys(Keys.ENTER)
 
             time.sleep(3)  # Safety timer to load elements
