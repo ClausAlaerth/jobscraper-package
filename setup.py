@@ -9,7 +9,7 @@ with open("requirements.txt", "r") as f:
 
 setup(
     name="jb-scraper",
-    version="0.0.6",
+    version="0.0.7",
     author="Lucas Aquino",
     author_email="lc.aquinodeoliveira@gmail.com",
     description="JobScraper, um pacote de raspagem de vagas na internet.",
