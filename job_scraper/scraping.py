@@ -99,7 +99,7 @@ class JobScraper:
                         By.CSS_SELECTOR, "li div > div > a")
 
                     footer_element = self.__navigator.find_element(
-                        By.XPATH, '//*[@id="compactfooter-about"]')
+                        By.CSS_SELECTOR, "#jobs-search-results-footer")
 
                     if footer_element:
                         break
@@ -109,13 +109,14 @@ class JobScraper:
                         "arguments[0].scrollIntoView({block: 'center'})",
                         job_list[-1])
 
-            for j in range(len(job_list)):
+            if job_list:
+                for j in range(len(job_list)):
 
-                individual_job_label = job_list[j].get_attribute(
-                    "aria-label")
-                individual_job_link = job_list[j].get_attribute("href")
-                self.__job_archive.append(
-                    [individual_job_label, individual_job_link])
+                    individual_job_label = job_list[j].get_attribute(
+                        "aria-label")
+                    individual_job_link = job_list[j].get_attribute("href")
+                    self.__job_archive.append(
+                        [individual_job_label, individual_job_link])
 
             self.__navigator.back()
 
