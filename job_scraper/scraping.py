@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from .conversion import list_conversion
+from conversion import list_conversion
 
 import time
 
@@ -93,18 +93,28 @@ class JobScraper:
             time.sleep(3)  # Safety timer to load elements
 
             # LinkedIn Lazy Load check
+
+            safety_lock = 3
+
             while True:
                 try:
                     job_list = self.__navigator.find_elements(
                         By.CSS_SELECTOR, "li div > div > a")
 
-                    footer_element = self.__navigator.find_element(
-                        By.CSS_SELECTOR, "#jobs-search-results-footer")
+                    page = self.__navigator.find_element(
+                        By.CSS_SELECTOR,
+                        "li.jobs-search-pagination__indicator"
+                    )
 
-                    if footer_element:
+                    if page:
                         break
 
                 except NoSuchElementException:
+                    safety_lock -= 1
+
+                    if safety_lock == 0:
+                        break
+
                     self.__navigator.execute_script(
                         "arguments[0].scrollIntoView({block: 'center'})",
                         job_list[-1])
@@ -249,3 +259,46 @@ class JobScraper:
             self.archive_name,
             self.sheet_name
         )
+
+
+linkedin_query = [
+    '("Python" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista de Dados" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista de Sistema") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista de Sistema" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista de Sistemas" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Analista de BI" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Engenheiro" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Engenheiro de Dados" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Dados" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Django" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("FastAPI" AND "Junior") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Help Desk") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+    '("Helpdesk") NOT ("Java" AND "C" AND "C#" AND "C++" AND ".NET" AND "Core" AND "PJ")',
+]
+
+teste_query = [
+    "python junior",
+    "dados junior",
+    "analista de dados junior",
+    "analista de sistema junior",
+    "analista de sistemas junior",
+    "analista de bi junior",
+    "analista junior",
+    "engenheiro de dados junior",
+    "engenheiro junior",
+    "django junior",
+    "fastapi junior"
+    "help desk",
+    "helpdesk"
+]
+
+teste = JobScraper(
+    domain="linkedin",
+    archive_name="controle_de_vagas",
+    query=linkedin_query,
+    location="Rio de Janeiro"
+)
+
+teste.create_archive()
